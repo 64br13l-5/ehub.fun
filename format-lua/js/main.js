@@ -1,7 +1,7 @@
 -function() {
   document.body.innerHTML =
     '<div>'
-  +   '<h1>ehub.fun lua beautifier</h1>'
+  +   '<h1>ehub.fun lua formatter</h1>'
   + '</div>'
   + '<div class="box-js-lua-code">'
   +   '<textarea id="js_lua_code" placeholder="Paste to Beautify"></textarea>'
