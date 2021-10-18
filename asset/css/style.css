@@ -1,0 +1,43 @@
+body {
+    background-color: #0a0a0a;
+}
+
+.text {
+    color: #fff;
+    font-size: 50px;
+    font-family: monospace;
+    text-align: center;
+}
+
+.title {
+    color: rgb(113,85,230);
+    font-size: 50px;
+    font-family: monospace;
+    text-align: center;
+    padding-top: 35vh;
+}
+
+span {
+    color: #fff;
+    text-shadow: .5px .5px #000000;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+    font-family: monospace;
+    font-size: 30px;
+    padding: 20px;
+}
+
+a:hover {
+    color: rgb(113,85,230);
+    text-decoration: underline;
+}
+
+ul {
+  list-style: none;
+  padding: 15px;
+  margin-top: 0px;
+  text-align: center;
+}
