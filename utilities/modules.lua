@@ -42,5 +42,4 @@ for I,V in pairs(getgc(true)) do
         end
     end
 end
-Framework.GunModules = game:GetService("ReplicatedStorage").GunModules:Clone();
 return Framework
