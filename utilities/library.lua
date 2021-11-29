@@ -41,12 +41,24 @@ local rs = game:GetService("RunService")
 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
 local HttpService = game:GetService("HttpService")
 
-local Design1 = Instance.new("ScreenGui")
+function library:CreateInstance(class, properties)
+    local instance_new = Instance.new(class, properties)
+    return instance_new
+end
+
+function library:CreateConnection(connection, name, callback)
+	callback = type(name) == "function" and name or callback
+	connection = connection:connect(callback)
+	if name ~= callback then
+		connections[name] = connection
+	end
+	return connection
+end
+
+local Design1 = library:CreateInstance("ScreenGui")
 Design1.Name = HttpService:GenerateGUID(false)
 Design1.Parent = game:GetService("CoreGui")
 library.mainUI = Design1
-
-
 
 local function Resize (part,new,_delay)
 	_delay = _delay or 0.5
@@ -66,7 +78,7 @@ function makeImage()
 		-90
 	}
 	
-	local image = Instance.new("ImageLabel", Design1)
+	local image = library:CreateInstance("ImageLabel", Design1)
 	image.Size = UDim2.new(0, 20, 0, 20)
 	image.AnchorPoint = Vector2.new(0.5, 0.5)
 	image.Position = UDim2.new(0, mouse.X, 0, mouse.Y)
@@ -151,7 +163,7 @@ end)
 
 local function CreateTop(text, list, size, pos)
 	text = text or "New tab"
-	local part = Instance.new("Frame", Design1)
+	local part = library:CreateInstance("Frame", Design1)
 	
 	if pos then
 		part.Position = pos
@@ -169,7 +181,7 @@ local function CreateTop(text, list, size, pos)
 	part.ZIndex = 3
 	part.Name = HttpService:GenerateGUID(false)
 
-	local label = Instance.new("TextLabel", part)
+	local label = library:CreateInstance("TextLabel", part)
 	label.Size = part.Size
 	label.BackgroundTransparency = 1
 	label.TextSize = 19
@@ -185,21 +197,116 @@ local function CreateTop(text, list, size, pos)
 		table.insert(tabs, part)
 	end
 
-	local underline = Instance.new("Frame", part)
+	local underline = library:CreateInstance("Frame", part)
 	underline.BorderSizePixel = 0
 	underline.Size = UDim2.new(1, 2, 0, 2)
 	underline.Position = UDim2.new(0, -1, 1.1, -3)
 	underline.ZIndex = part.ZIndex
 	underline.Name = HttpService:GenerateGUID(false)
 
-	local UIGradient = Instance.new("UIGradient")
+	local UIGradient = library:CreateInstance("UIGradient")
 	UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 	UIGradient.Parent = underline
 	UIGradient.Name = HttpService:GenerateGUID(false)
 
 	table.insert(uiGradients, UIGradient)
-
 	return part
+end
+
+function library:CreateDrawing(class, properties)
+    local draw_new = Drawing.new(class, properties)
+    return draw_new
+end
+
+function library:CreateWatermark(name, position)
+    local watermark = {}
+    watermark.Visible = true
+    watermark.text = name
+    watermark.main = library:CreateInstance("ScreenGui", game:GetService("CoreGui"))
+    watermark.main.Name = HttpService:GenerateGUID(false)
+    
+    watermark.mainbar = library:CreateInstance("Frame", watermark.main)
+    watermark.mainbar.Name = HttpService:GenerateGUID(false)
+    watermark.mainbar.BorderColor3 = Color3.fromRGB(80, 80, 80)
+    watermark.mainbar.Visible = watermark.Visible
+    watermark.mainbar.BorderSizePixel = 0
+    watermark.mainbar.BorderMode = Enum.BorderMode.Inset
+    watermark.mainbar.ZIndex = 5
+    watermark.mainbar.Position = UDim2.new(0, position and position.X or 10, 0, position and position.Y or 10)
+    watermark.mainbar.Size = UDim2.new(0, 0, 0, 25)
+
+    watermark.Gradient = library:CreateInstance("UIGradient", watermark.mainbar)
+    watermark.Gradient.Rotation = 90
+    watermark.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, Color3.fromRGB(35,35,35)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(31,39,45)) })
+
+    watermark.Outline = library:CreateInstance("Frame", watermark.mainbar)
+    watermark.Outline.Name = HttpService:GenerateGUID(false)
+    watermark.Outline.ZIndex = 4
+    watermark.Outline.BorderSizePixel = 0
+    watermark.Outline.BorderMode = Enum.BorderMode.Inset
+    watermark.Outline.Visible = watermark.Visible
+    watermark.Outline.BackgroundColor3 = Color3.fromRGB(31,39,45)
+    watermark.Outline.Position = UDim2.fromOffset(-1, -1)
+
+    watermark.BlackOutline = library:CreateInstance("Frame", watermark.mainbar)
+    watermark.BlackOutline.Name = HttpService:GenerateGUID(false)
+    watermark.BlackOutline.ZIndex = 3
+    watermark.BlackOutline.BorderSizePixel = 0
+    watermark.BlackOutline.BorderMode = Enum.BorderMode.Inset
+    watermark.BlackOutline.BackgroundColor3 = Color3.fromRGB(31,39,45)
+    watermark.BlackOutline.Visible = watermark.Visible
+    watermark.BlackOutline.Position = UDim2.fromOffset(-2, -2)
+
+    watermark.label = library:CreateInstance("TextLabel", watermark.mainbar)
+    watermark.label.Name = HttpService:GenerateGUID(false)
+    watermark.label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    watermark.label.BackgroundTransparency = 1.000
+    watermark.label.Position = UDim2.new(0, 0, 0, 0)
+    watermark.label.Size = UDim2.new(0, 238, 0, 25)
+    watermark.label.Font = Enum.Font.Gotham
+    watermark.label.ZIndex = 6
+    watermark.label.Visible = watermark.Visible
+    watermark.label.Text = watermark.text
+    watermark.label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    watermark.label.TextSize = 15.000
+    watermark.label.TextStrokeTransparency = 0.000
+    watermark.label.TextXAlignment = Enum.TextXAlignment.Left
+    watermark.label.Size = UDim2.new(0, watermark.label.TextBounds.X+10, 0, 25)
+    
+    watermark.topbar = library:CreateInstance("Frame", watermark.mainbar)
+    watermark.topbar.Name = HttpService:GenerateGUID(false)
+    watermark.topbar.ZIndex = 6
+    watermark.topbar.BackgroundColor3 = Color3.fromRGB(96, 74, 191)
+    watermark.topbar.BorderSizePixel = 0
+    watermark.topbar.BorderMode = Enum.BorderMode.Inset
+    watermark.topbar.Visible = watermark.Visible
+    watermark.topbar.Size = UDim2.new(0, 0, 0, 1)
+
+    watermark.mainbar.Size = UDim2.new(0, watermark.label.TextBounds.X, 0, 25)
+    watermark.topbar.Size = UDim2.new(0, watermark.label.TextBounds.X+6, 0, 1)
+    watermark.Outline.Size = watermark.mainbar.Size + UDim2.fromOffset(2, 2)
+    watermark.BlackOutline.Size = watermark.mainbar.Size + UDim2.fromOffset(4, 4)
+
+    watermark.mainbar.Size = UDim2.new(0, watermark.label.TextBounds.X+4, 0, 25)    
+    watermark.label.Size = UDim2.new(0, watermark.label.TextBounds.X+4, 0, 25)
+    watermark.topbar.Size = UDim2.new(0, watermark.label.TextBounds.X+6, 0, 1)
+    watermark.Outline.Size = watermark.mainbar.Size + UDim2.fromOffset(2, 2)
+    watermark.BlackOutline.Size = watermark.mainbar.Size + UDim2.fromOffset(4, 4)
+    watermark.mainbar.MouseEnter:Connect(function()
+        TweenService:Create(watermark.mainbar, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 1, Active = false }):Play()
+        TweenService:Create(watermark.topbar, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 1, Active = false }):Play()
+        TweenService:Create(watermark.label, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { TextTransparency = 1, Active = false }):Play()
+        TweenService:Create(watermark.Outline, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 1, Active = false }):Play()
+        TweenService:Create(watermark.BlackOutline, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 1, Active = false }):Play()
+    end)
+    watermark.mainbar.MouseLeave:Connect(function()
+        TweenService:Create(watermark.mainbar, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0, Active = true }):Play()
+        TweenService:Create(watermark.topbar, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0, Active = true }):Play()
+        TweenService:Create(watermark.label, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { TextTransparency = 0, Active = true }):Play()
+        TweenService:Create(watermark.Outline, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0, Active = true }):Play()
+        TweenService:Create(watermark.BlackOutline, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0, Active = true }):Play()
+    end)
+    return watermark
 end
 
 function library:CreateTab(name, list, size, pos)
@@ -212,7 +319,7 @@ function library:CreateTab(name, list, size, pos)
 	
 	
 	
-	local part = Instance.new("Frame")
+	local part = library:CreateInstance("Frame")
 	part.Name = HttpService:GenerateGUID(false)
 	part.Parent = Design1
 	
@@ -237,7 +344,7 @@ function library:CreateTab(name, list, size, pos)
 	part.ZIndex = #tabs == 0 and 3 or (#tabs * 3) + 3
 	part.Name = HttpService:GenerateGUID(false)
 
-	local label = Instance.new("TextLabel", part)
+	local label = library:CreateInstance("TextLabel", part)
 	label.Size = part.Size
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.BackgroundTransparency = 1
@@ -254,21 +361,21 @@ function library:CreateTab(name, list, size, pos)
 		table.insert(tabs, part)
 	end
 
-	local underline = Instance.new("Frame", part)
+	local underline = library:CreateInstance("Frame", part)
 	underline.BorderSizePixel = 0
 	underline.Size = UDim2.new(1, 2, 0, 2)
 	underline.Position = UDim2.new(0, -1, 1.1, -3)
 	underline.ZIndex = part.ZIndex
 	underline.Name = HttpService:GenerateGUID(false)
 
-	local UIGradient = Instance.new("UIGradient")
+	local UIGradient = library:CreateInstance("UIGradient")
 	UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 	UIGradient.Parent = underline
 	UIGradient.Name = HttpService:GenerateGUID(false)
 
 	table.insert(uiGradients, UIGradient)
 	
-	local body = Instance.new("Frame", part)
+	local body = library:CreateInstance("Frame", part)
 	body.Size = UDim2.new(1, 0, 0, 0)
 	body.ZIndex = part.ZIndex - 1
 	body.AnchorPoint = Vector2.new(0.5,0)
@@ -280,7 +387,7 @@ function library:CreateTab(name, list, size, pos)
 	body.BackgroundTransparency = 0
 	body.Name = HttpService:GenerateGUID(false)
 
-	local UIGradient_2 = Instance.new("UIGradient")
+	local UIGradient_2 = library:CreateInstance("UIGradient")
 	UIGradient_2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 130, 130)), ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 245, 245))}
 	UIGradient_2.Parent = body
 	UIGradient_2.Name = HttpService:GenerateGUID(false)
@@ -288,13 +395,13 @@ function library:CreateTab(name, list, size, pos)
 
 	table.insert(uiGradients, UIGradient)
 
-	local bodyelements = Instance.new("Frame", body)
+	local bodyelements = library:CreateInstance("Frame", body)
 	bodyelements.ZIndex = part.ZIndex - 1
 	bodyelements.Size = body.Size + UDim2.new(0, 0, 0, 1000)
 	bodyelements.BackgroundTransparency = 1
 	bodyelements.Name = HttpService:GenerateGUID(false)
 
-	local UIGradient_2 = Instance.new("UIGradient")
+	local UIGradient_2 = library:CreateInstance("UIGradient")
 	UIGradient_2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 130, 130)), ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 245, 245))}
 	UIGradient_2.Parent = bodyelements
 	UIGradient_2.Name = HttpService:GenerateGUID(false)
@@ -303,10 +410,10 @@ function library:CreateTab(name, list, size, pos)
 	
 	
 	local function CreateBackground (color)
-		local background = Instance.new("Frame", body)
+		local background = library:CreateInstance("Frame", body)
 		background.Name = HttpService:GenerateGUID(false)
 		local function CreateSection (pos)
-			local section = Instance.new("ImageLabel", background)
+			local section = library:CreateInstance("ImageLabel", background)
 			
 			section.BackgroundColor3 = Color3.new(1, 1, 1)
 			section.Position = pos
@@ -324,7 +431,7 @@ function library:CreateTab(name, list, size, pos)
 		end
 	end
 	
-	local actionbutton = Instance.new("ImageButton", part)
+	local actionbutton = library:CreateInstance("ImageButton", part)
 	actionbutton.BackgroundTransparency = 1
 	actionbutton.Size = UDim2.new(0, 21, 0, 21)
 	actionbutton.AnchorPoint = Vector2.new(0,0.5)
@@ -334,7 +441,7 @@ function library:CreateTab(name, list, size, pos)
 	actionbutton.ImageTransparency = 1
 	actionbutton.Name = HttpService:GenerateGUID(false)
 
-	local OPImg = Instance.new("ImageLabel", actionbutton)
+	local OPImg = library:CreateInstance("ImageLabel", actionbutton)
 	OPImg.BackgroundTransparency = 1
 	OPImg.Size = UDim2.new(0, 0, 1, 0)
 	OPImg.Position = UDim2.new(0.5, 0, 0, 0)
@@ -342,7 +449,7 @@ function library:CreateTab(name, list, size, pos)
 	OPImg.Image = 'rbxassetid://52756150'
 	OPImg.Name = HttpService:GenerateGUID(false)
 
-	local CLImg = Instance.new("ImageLabel", actionbutton)
+	local CLImg = library:CreateInstance("ImageLabel", actionbutton)
 	CLImg.BackgroundTransparency = 1
 	CLImg.Size = UDim2.new(1, 0, 1, 0)
 	CLImg.Position = UDim2.new(0, 0, 0, 0)
@@ -387,7 +494,7 @@ function library:CreateTab(name, list, size, pos)
 		
 		local CurrentSectionCode = HttpService:GenerateGUID(false)
 		
-		local button = Instance.new("TextButton", bodyelements)
+		local button = library:CreateInstance("TextButton", bodyelements)
 
 		button.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		button.AnchorPoint = Vector2.new(0.5,0)
@@ -405,7 +512,7 @@ function library:CreateTab(name, list, size, pos)
 		button.Active = true
 		button.Name = HttpService:GenerateGUID(false)
 		
-		local buttonText = Instance.new("TextLabel", button)
+		local buttonText = library:CreateInstance("TextLabel", button)
 		buttonText.Name = HttpService:GenerateGUID(false)
 		buttonText.BackgroundTransparency = 1
 		buttonText.Size = UDim2.new(1,0,1,0)
@@ -418,13 +525,13 @@ function library:CreateTab(name, list, size, pos)
 		buttonText.TextXAlignment = Enum.TextXAlignment.Left
 		buttonText.Font = options.font
 		
-		local UIGradient = Instance.new("UIGradient")
+		local UIGradient = library:CreateInstance("UIGradient")
 		UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 		UIGradient.Parent = button
 		UIGradient.Name = HttpService:GenerateGUID(false)
 		table.insert(uiGradients, UIGradient)
 		
-		local actionbutton = Instance.new("ImageButton", button)
+		local actionbutton = library:CreateInstance("ImageButton", button)
 		actionbutton.BackgroundTransparency = 1
 		actionbutton.Size = UDim2.new(0, 30, 0, 30)
 		actionbutton.AnchorPoint = Vector2.new(0.5,0.5)
@@ -434,7 +541,7 @@ function library:CreateTab(name, list, size, pos)
 		actionbutton.ImageTransparency = 1
 		actionbutton.Name = HttpService:GenerateGUID(false)
 	
-		local OPImg = Instance.new("ImageButton", actionbutton)
+		local OPImg = library:CreateInstance("ImageButton", actionbutton)
 		OPImg.BackgroundTransparency = 1
 		OPImg.Size = UDim2.new(1, 0, 1, 0)
 		OPImg.Position = UDim2.new(0, 0, 0, 0)
@@ -443,7 +550,7 @@ function library:CreateTab(name, list, size, pos)
 		OPImg.Name = HttpService:GenerateGUID(false)
 		OPImg.Rotation = 180
 		
-		local SecBodyelements = Instance.new("Frame", button)
+		local SecBodyelements = library:CreateInstance("Frame", button)
 		SecBodyelements.ZIndex = button.ZIndex
 		SecBodyelements.Size = UDim2.new(body.Size.X.Scale, body.Size.X.Offset, 0, 0)--body.Size + UDim2.new(0, 0, 0, 1000)
 		SecBodyelements.AnchorPoint = Vector2.new(0.5, 0)
@@ -459,7 +566,7 @@ function library:CreateTab(name, list, size, pos)
 		SecBodyelements.BorderColor3 = Color3.fromRGB(40, 40, 40)
 		SecBodyelements.Visible = false
 		
-		local UIGradient = Instance.new("UIGradient")
+		local UIGradient = library:CreateInstance("UIGradient")
 		UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 		UIGradient.Parent = SecBodyelements
 		UIGradient.Rotation = 45
@@ -499,13 +606,13 @@ function library:CreateTab(name, list, size, pos)
 			SecBodyelements.Visible = true
 			
 			for i = 1, #SectionTabs do
-				local s = Instance.new("Frame")
+				local s = library:CreateInstance("Frame")
 				s.Name = CurrentSectionCode
 				s.Parent = nil
 				table.insert(fakeTabs, s)
 				table.insert(PhaseOneInstances, s)
 			end
-			TweenService:Create(OPImg,TweenInfo.new(0.35),{Rotation = 0}):Play()
+			TweenService:CreateInstance(OPImg,TweenInfo.new(0.35),{Rotation = 0}):Play()
 			
 			Resize(SecBodyelements, {Size = UDim2.new(body.Size.X.Scale, body.Size.X.Offset, 0, pixelspacing * #SectionTabs - 4)})
 			Open()
@@ -520,7 +627,7 @@ function library:CreateTab(name, list, size, pos)
 		
 		local function shine(duration)
             button.ClipsDescendants = true
-            local sFrame = Instance.new("ImageLabel", button)
+            local sFrame = library:CreateInstance("ImageLabel", button)
             sFrame.Active = true
             sFrame.Image = "rbxassetid://2954823376"
             sFrame.Size = UDim2.new(0, 200, 0, 200)
@@ -569,7 +676,7 @@ function library:CreateTab(name, list, size, pos)
 			text = text or "New switch"
 			callback = callback or function() end
 			
-			local switch = Instance.new("TextButton", SecBodyelements)
+			local switch = library:CreateInstance("TextButton", SecBodyelements)
 			table.insert(SectionTabs, switch)
 			
 			switch.Size = UDim2.new(0, 205, 0, 32.5)
@@ -588,7 +695,7 @@ function library:CreateTab(name, list, size, pos)
 			switch.AutoButtonColor = false
 			switch.Name = HttpService:GenerateGUID(false)
 			
-			local buttonText = Instance.new("TextLabel", switch)
+			local buttonText = library:CreateInstance("TextLabel", switch)
 			buttonText.Name = HttpService:GenerateGUID(false)
 			buttonText.BackgroundTransparency = 1
 			buttonText.Size = UDim2.new(1,0,1,0)
@@ -601,14 +708,14 @@ function library:CreateTab(name, list, size, pos)
 			buttonText.TextXAlignment = Enum.TextXAlignment.Left
 			buttonText.Font = options.font
 			
-			local UIGradient = Instance.new("UIGradient")
+			local UIGradient = library:CreateInstance("UIGradient")
 			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 			UIGradient.Parent = switch
 			UIGradient.Name = HttpService:GenerateGUID(false)
 			table.insert(uiGradients, UIGradient)
 	
 			local enabled = false
-			local OuterCircle = Instance.new("ImageLabel", switch)
+			local OuterCircle = library:CreateInstance("ImageLabel", switch)
 			OuterCircle.AnchorPoint = Vector2.new(0, 0.5)
 			OuterCircle.Size = UDim2.new(0, 20, 0, 20)
 			OuterCircle.Position = UDim2.new(1, -30, 0.5, 0)
@@ -623,7 +730,7 @@ function library:CreateTab(name, list, size, pos)
 			OuterCircle.SliceScale = 1
 			OuterCircle.Name = HttpService:GenerateGUID(false)
 	
-	        local InnerCircle = Instance.new("ImageLabel", OuterCircle)
+	        local InnerCircle = library:CreateInstance("ImageLabel", OuterCircle)
 	        InnerCircle.Size = UDim2.new(0, 0, 0, 0)
 	        InnerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 			InnerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -638,7 +745,7 @@ function library:CreateTab(name, list, size, pos)
 			InnerCircle.SliceScale = 1
 			InnerCircle.Name = HttpService:GenerateGUID(false)
 	
-	        local Frame = Instance.new("ImageLabel", OuterCircle)
+	        local Frame = library:CreateInstance("ImageLabel", OuterCircle)
 	        Frame.ClipsDescendants = true
 	        Frame.BackgroundTransparency = 1
 	        Frame.BorderSizePixel = 0
@@ -688,7 +795,7 @@ function library:CreateTab(name, list, size, pos)
 			text = text or "New button"
 			callback = callback or function() end
 	
-			local button = Instance.new("TextButton", SecBodyelements)
+			local button = library:CreateInstance("TextButton", SecBodyelements)
 			table.insert(SectionTabs, button)
 	
 			button.Size = UDim2.new(0, 205, 0, 32.5)
@@ -709,7 +816,7 @@ function library:CreateTab(name, list, size, pos)
 			button.Active = true
 			button.Name = HttpService:GenerateGUID(false)
 			
-			local buttonText = Instance.new("TextLabel", button)
+			local buttonText = library:CreateInstance("TextLabel", button)
 			buttonText.Name = HttpService:GenerateGUID(false)
 			buttonText.BackgroundTransparency = 1
 			buttonText.Size = UDim2.new(1,0,1,0)
@@ -722,13 +829,13 @@ function library:CreateTab(name, list, size, pos)
 			buttonText.TextXAlignment = Enum.TextXAlignment.Left
 			buttonText.Font = options.font
 			
-			local UIGradient = Instance.new("UIGradient")
+			local UIGradient = library:CreateInstance("UIGradient")
 			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 			UIGradient.Parent = button 
 			UIGradient.Name = HttpService:GenerateGUID(false)
 			table.insert(uiGradients, UIGradient)
 			
-			local actionbutton = Instance.new("ImageButton", button)
+			local actionbutton = library:CreateInstance("ImageButton", button)
 			actionbutton.BackgroundTransparency = 1
 			actionbutton.Size = UDim2.new(0, 24, 0, 24)
 			actionbutton.AnchorPoint = Vector2.new(0.5,0.5)
@@ -738,7 +845,7 @@ function library:CreateTab(name, list, size, pos)
 			actionbutton.ImageTransparency = 1
 			actionbutton.Name = HttpService:GenerateGUID(false)
 		
-			local OPImg = Instance.new("ImageButton", actionbutton)
+			local OPImg = library:CreateInstance("ImageButton", actionbutton)
 			OPImg.BackgroundTransparency = 1
 			OPImg.Size = UDim2.new(1, 0, 1, 0)
 			OPImg.Position = UDim2.new(0, 0, 0, 0)
@@ -748,7 +855,7 @@ function library:CreateTab(name, list, size, pos)
 	        
 	        local function shine(duration)
 	            button.ClipsDescendants = true
-	            local sFrame = Instance.new("ImageLabel", button)
+	            local sFrame = library:CreateInstance("ImageLabel", button)
 	            sFrame.Active = true
 	            sFrame.Image = "rbxassetid://2954823376"
 	            sFrame.Size = UDim2.new(0, 200, 0, 200)
@@ -788,7 +895,7 @@ function library:CreateTab(name, list, size, pos)
 			maxvalue = maxvalue or 100
 			callback = callback or function() end
 	
-			local box = Instance.new("TextLabel", SecBodyelements)
+			local box = library:CreateInstance("TextLabel", SecBodyelements)
 			table.insert(SectionTabs, box)
 	
 			box.Size = UDim2.new(0, 205, 0, 32.5)
@@ -806,13 +913,13 @@ function library:CreateTab(name, list, size, pos)
 			box.ZIndex = SecBodyelements.ZIndex
 			box.Name = HttpService:GenerateGUID(false)
 			
-			local UIGradient = Instance.new("UIGradient")
+			local UIGradient = library:CreateInstance("UIGradient")
 			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 			UIGradient.Parent = box
 			UIGradient.Name = HttpService:GenerateGUID(false)
 			table.insert(uiGradients, UIGradient)
 			
-			local UpperSlideValue = Instance.new("TextLabel")
+			local UpperSlideValue = library:CreateInstance("TextLabel")
 			UpperSlideValue.Name = HttpService:GenerateGUID(false)
 			UpperSlideValue.Parent = box
 			UpperSlideValue.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -828,7 +935,7 @@ function library:CreateTab(name, list, size, pos)
 			UpperSlideValue.TextXAlignment = Enum.TextXAlignment.Right
 			UpperSlideValue.TextYAlignment = Enum.TextYAlignment.Top
 			
-			local UpperSlideText = Instance.new("TextLabel")
+			local UpperSlideText = library:CreateInstance("TextLabel")
 			UpperSlideText.Name = HttpService:GenerateGUID(false)
 			UpperSlideText.Parent = box
 			UpperSlideText.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -845,14 +952,14 @@ function library:CreateTab(name, list, size, pos)
 			UpperSlideText.TextYAlignment = Enum.TextYAlignment.Top
 			
 	
-			local Slider = Instance.new("Frame")
-			local Point = Instance.new("ImageLabel")
-			local MouseOn = Instance.new("ImageLabel")
-			local MouseDown = Instance.new("ImageLabel")
-			local ValIcon = Instance.new("ImageLabel")
-			local ValText = Instance.new("TextLabel")
-			local Back = Instance.new("Frame")
-			local MouseButton = Instance.new("TextButton")
+			local Slider = library:CreateInstance("Frame")
+			local Point = library:CreateInstance("ImageLabel")
+			local MouseOn = library:CreateInstance("ImageLabel")
+			local MouseDown = library:CreateInstance("ImageLabel")
+			local ValIcon = library:CreateInstance("ImageLabel")
+			local ValText = library:CreateInstance("TextLabel")
+			local Back = library:CreateInstance("Frame")
+			local MouseButton = library:CreateInstance("TextButton")
 			
 			Slider.Name = HttpService:GenerateGUID(false)
 			Slider.Parent = box
@@ -1023,7 +1130,7 @@ function library:CreateTab(name, list, size, pos)
 		text = text or "New button"
 		callback = callback or function() end
 
-		local button = Instance.new("TextButton", bodyelements)
+		local button = library:CreateInstance("TextButton", bodyelements)
 
 		button.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		button.AnchorPoint = Vector2.new(0.5,0)
@@ -1037,14 +1144,14 @@ function library:CreateTab(name, list, size, pos)
 		button.TextSize = 15
 		button.TextXAlignment = Enum.TextXAlignment.Left
 		button.Font = options.font
-		button.Text = "    " --.. tostring(text)
+		button.Text = "    "
 		button.ZIndex = bodyelements.ZIndex
         button.AutoButtonColor = false
         button.ClipsDescendants = true
 		button.Active = true
 		button.Name = HttpService:GenerateGUID(false)
 		
-		local buttonText = Instance.new("TextLabel", button)
+		local buttonText = library:CreateInstance("TextLabel", button)
 		buttonText.Name = HttpService:GenerateGUID(false)
 		buttonText.BackgroundTransparency = 1
 		buttonText.Size = UDim2.new(1,0,1,0)
@@ -1057,13 +1164,13 @@ function library:CreateTab(name, list, size, pos)
 		buttonText.TextXAlignment = Enum.TextXAlignment.Left
 		buttonText.Font = options.font
 		
-		local UIGradient = Instance.new("UIGradient")
+		local UIGradient = library:CreateInstance("UIGradient")
 		UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 		UIGradient.Parent = button
 		UIGradient.Name = HttpService:GenerateGUID(false)
 		table.insert(uiGradients, UIGradient)
 		
-		local actionbutton = Instance.new("ImageButton", button)
+		local actionbutton = library:CreateInstance("ImageButton", button)
 		actionbutton.BackgroundTransparency = 1
 		actionbutton.Size = UDim2.new(0, 24, 0, 24)
 		actionbutton.AnchorPoint = Vector2.new(0.5,0.5)
@@ -1073,7 +1180,7 @@ function library:CreateTab(name, list, size, pos)
 		actionbutton.ImageTransparency = 1
 		actionbutton.Name = HttpService:GenerateGUID(false)
 	
-		local OPImg = Instance.new("ImageButton", actionbutton)
+		local OPImg = library:CreateInstance("ImageButton", actionbutton)
 		OPImg.BackgroundTransparency = 1
 		OPImg.Size = UDim2.new(1, 0, 1, 0)
 		OPImg.Position = UDim2.new(0, 0, 0, 0)
@@ -1083,7 +1190,7 @@ function library:CreateTab(name, list, size, pos)
         
         local function shine(duration)
             button.ClipsDescendants = true
-            local sFrame = Instance.new("ImageLabel", button)
+            local sFrame = library:CreateInstance("ImageLabel", button)
             sFrame.Active = true
             sFrame.Image = "rbxassetid://2954823376"
             sFrame.Size = UDim2.new(0, 200, 0, 200)
@@ -1125,13 +1232,13 @@ function library:CreateTab(name, list, size, pos)
 
 		local hueSatDragging = false;
 		local valueDragging = false;
-		local button = Instance.new("TextButton", bodyelements)
-		local statusFrame = Instance.new("Frame", button);
-		local colorPickingFrame = Instance.new("Frame", button);
-		local hueSatFrame = Instance.new("ImageLabel", colorPickingFrame);
-		local hueSatIndicatorFrame = Instance.new("ImageLabel", hueSatFrame);
-		local valueFrame = Instance.new("ImageLabel", colorPickingFrame);
-		local valueIndicatorFrame = Instance.new("ImageLabel", valueFrame);
+		local button = library:CreateInstance("TextButton", bodyelements)
+		local statusFrame = library:CreateInstance("Frame", button);
+		local colorPickingFrame = library:CreateInstance("Frame", button);
+		local hueSatFrame = library:CreateInstance("ImageLabel", colorPickingFrame);
+		local hueSatIndicatorFrame = library:CreateInstance("ImageLabel", hueSatFrame);
+		local valueFrame = library:CreateInstance("ImageLabel", colorPickingFrame);
+		local valueIndicatorFrame = library:CreateInstance("ImageLabel", valueFrame);
 
 		button.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		button.AnchorPoint = Vector2.new(0.5,0)
@@ -1144,14 +1251,14 @@ function library:CreateTab(name, list, size, pos)
 		button.TextSize = 15
 		button.TextXAlignment = Enum.TextXAlignment.Left
 		button.Font = options.font
-		button.Text = "    " --.. tostring(text)
+		button.Text = "    "
         button.AutoButtonColor = false
         button.ClipsDescendants = false
 		button.Active = true
 		button.Name = HttpService:GenerateGUID(false)
 		button.ZIndex = bodyelements.ZIndex
 
-		local buttonText = Instance.new("TextLabel", button)
+		local buttonText = library:CreateInstance("TextLabel", button)
 		buttonText.Name = HttpService:GenerateGUID(false)
 		buttonText.BackgroundTransparency = 1
 		buttonText.Size = UDim2.new(1,0,1,0)
@@ -1171,7 +1278,7 @@ function library:CreateTab(name, list, size, pos)
 		statusFrame.Position = UDim2.new(1, 0, 0, 0);
 		statusFrame.Size = UDim2.new(0.223, 0, 1, 0);
 
-		local ColorBoxButton = Instance.new("ImageLabel", button)
+		local ColorBoxButton = library:CreateInstance("ImageLabel", button)
 		ColorBoxButton.AnchorPoint = Vector2.new(0, 0.5)
 		ColorBoxButton.Size = UDim2.new(0, 20, 0, 20)
 		ColorBoxButton.Position = UDim2.new(1, -30, 0.5, 0)
@@ -1340,7 +1447,7 @@ function library:CreateTab(name, list, size, pos)
 		text = text or "New switch"
 		callback = callback or function() end
 		
-		local switch = Instance.new("TextButton", bodyelements)
+		local switch = library:CreateInstance("TextButton", bodyelements)
 		switch.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		switch.AnchorPoint = Vector2.new(0.5,0)
 		switch.Position = UDim2.new(0.5, 0, (pixelspacing / 990) * #PhaseOneInstances + 0.0155, 0)
@@ -1358,7 +1465,7 @@ function library:CreateTab(name, list, size, pos)
 		switch.Name = HttpService:GenerateGUID(false)
 
 		local enabled = false
-		local OuterCircle = Instance.new("ImageLabel", switch)
+		local OuterCircle = library:CreateInstance("ImageLabel", switch)
 		OuterCircle.AnchorPoint = Vector2.new(0, 0.5)
 		OuterCircle.Size = UDim2.new(0, 20, 0, 20)
 		OuterCircle.Position = UDim2.new(1, -30, 0.5, 0)
@@ -1374,7 +1481,7 @@ function library:CreateTab(name, list, size, pos)
 		OuterCircle.Name = HttpService:GenerateGUID(false)
 		toggleOuterCircles[OuterCircle] = enabled
 
-        local InnerCircle = Instance.new("ImageLabel", OuterCircle)
+        local InnerCircle = library:CreateInstance("ImageLabel", OuterCircle)
         InnerCircle.Size = UDim2.new(0, 0, 0, 0)
         InnerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 		InnerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -1390,7 +1497,7 @@ function library:CreateTab(name, list, size, pos)
 		InnerCircle.Name = HttpService:GenerateGUID(false)
 		toggleInnerCircles[InnerCircle] = enabled
 
-        local Frame = Instance.new("ImageLabel", OuterCircle)
+        local Frame = library:CreateInstance("ImageLabel", OuterCircle)
         Frame.ClipsDescendants = true
         Frame.BackgroundTransparency = 1
         Frame.BorderSizePixel = 0
@@ -1448,7 +1555,7 @@ function library:CreateTab(name, list, size, pos)
 		
 		local Top = CreateTop(name, true)
 
-		local button = Instance.new("TextLabel", Top)
+		local button = library:CreateInstance("TextLabel", Top)
 		
 		local minHeight = 10
 		
@@ -1474,7 +1581,7 @@ function library:CreateTab(name, list, size, pos)
 		text = text or "New Window"
 		
 		local Top = CreateTop(text, true, UDim2.new(0, 600, 0, 25), UDim2.new(.65, 0, .6, 0))
-		local body = Instance.new("ScrollingFrame", Top)
+		local body = library:CreateInstance("ScrollingFrame", Top)
 		
 		body.Position = UDim2.new(0, 0, 0, 0)
 		body.Size = UDim2.new(1, 0, 0, 300)
@@ -1484,7 +1591,7 @@ function library:CreateTab(name, list, size, pos)
 		body.ClipsDescendants = true
 		body.Name = HttpService:GenerateGUID(false)
 
-		local VelTxt = Instance.new("TextLabel",Top)
+		local VelTxt = library:CreateInstance("TextLabel",Top)
 		VelTxt.ZIndex = Top.ZIndex + 1
 		VelTxt.Text = "Vel Earned: "
 		VelTxt.BackgroundTransparency = 1
@@ -1495,7 +1602,7 @@ function library:CreateTab(name, list, size, pos)
 		VelTxt.Name = HttpService:GenerateGUID(false)
 
 		function actions:Log(text, color3, image)
-			local log = Instance.new("TextLabel")
+			local log = library:CreateInstance("TextLabel")
 			log.Parent = body
 			log.Text = text or ""
 			log.Size = UDim2.new(1, 0, 0, 35)
@@ -1509,7 +1616,7 @@ function library:CreateTab(name, list, size, pos)
 			body.CanvasSize = UDim2.new(0, 0, 0, #body:GetChildren() * 30)
 		end
 
-		local actionbutton = Instance.new("ImageButton", Top)
+		local actionbutton = library:CreateInstance("ImageButton", Top)
 		actionbutton.BackgroundTransparency = 1
 		actionbutton.Size = UDim2.new(0, 25, 0, 25)
 		actionbutton.Position = UDim2.new(0.93, 0, 0, 0)
@@ -1518,7 +1625,7 @@ function library:CreateTab(name, list, size, pos)
 		actionbutton.ImageTransparency = 1
 		actionbutton.Name = HttpService:GenerateGUID(false)
 
-		local OPImg = Instance.new("ImageLabel", actionbutton)
+		local OPImg = library:CreateInstance("ImageLabel", actionbutton)
 		OPImg.BackgroundTransparency = 1
 		OPImg.Size = UDim2.new(0, 0, 1, 0)
 		OPImg.Position = UDim2.new(0.5, 0, 0, 0)
@@ -1526,7 +1633,7 @@ function library:CreateTab(name, list, size, pos)
 		OPImg.Image = 'rbxassetid://52756150'
 		OPImg.Name = HttpService:GenerateGUID(false)
 
-		local CLImg = Instance.new("ImageLabel", actionbutton)
+		local CLImg = library:CreateInstance("ImageLabel", actionbutton)
 		CLImg.BackgroundTransparency = 1
 		CLImg.Size = UDim2.new(1, 0, 1, 0)
 		CLImg.Position = UDim2.new(0, 0, 0, 0)
@@ -1566,22 +1673,22 @@ function library:CreateTab(name, list, size, pos)
 		text = text or "New Dropdown"
 		callback = callback or function() end
 
-		local DropDownOutlinedTextBox = Instance.new("TextBox")
-		local Bar = Instance.new("Frame")
-		local ErrorText = Instance.new("TextLabel")
-		local UIPadding = Instance.new("UIPadding")
-		local TopBarL = Instance.new("Frame")
-		local TopBarR = Instance.new("Frame")
-		local RBar = Instance.new("Frame")
-		local LBar = Instance.new("Frame")
-		local TextHit = Instance.new("TextLabel")
-		local back = Instance.new("TextLabel")
-		local TextSize = Instance.new("TextLabel")
-		local DropDown = Instance.new("ImageLabel")
-		local Holder = Instance.new("Frame")
-		local UIListLayout = Instance.new("UIGridLayout")
-		local UIPadding_2 = Instance.new("UIPadding")
-		local Icon = Instance.new("ImageLabel")
+		local DropDownOutlinedTextBox = library:CreateInstance("TextBox")
+		local Bar = library:CreateInstance("Frame")
+		local ErrorText = library:CreateInstance("TextLabel")
+		local UIPadding = library:CreateInstance("UIPadding")
+		local TopBarL = library:CreateInstance("Frame")
+		local TopBarR = library:CreateInstance("Frame")
+		local RBar = library:CreateInstance("Frame")
+		local LBar = library:CreateInstance("Frame")
+		local TextHit = library:CreateInstance("TextLabel")
+		local back = library:CreateInstance("TextLabel")
+		local TextSize = library:CreateInstance("TextLabel")
+		local DropDown = library:CreateInstance("ImageLabel")
+		local Holder = library:CreateInstance("Frame")
+		local UIListLayout = library:CreateInstance("UIGridLayout")
+		local UIPadding_2 = library:CreateInstance("UIPadding")
+		local Icon = library:CreateInstance("ImageLabel")
 		
 		DropDownOutlinedTextBox.Name = HttpService:GenerateGUID(false)
 		DropDownOutlinedTextBox.Parent = bodyelements
@@ -1716,13 +1823,13 @@ function library:CreateTab(name, list, size, pos)
 		DropDown.Size = UDim2.new(1, 5, 0, 0)
 		DropDown.Visible = false
 		DropDown.ZIndex = DropDownOutlinedTextBox.ZIndex + 2
-		--DropDown.Image = "rbxassetid://1935044829"
+		DropDown.Image = "rbxassetid://1935044829"
 		DropDown.ImageTransparency = 1
 		DropDown.ImageColor3 = Color3.fromRGB(112, 112, 112)
 		DropDown.ScaleType = Enum.ScaleType.Slice
 		DropDown.SliceCenter = Rect.new(8, 8, 248, 248)
 		
-		local UIGradient = Instance.new("UIGradient")
+		local UIGradient = library:CreateInstance("UIGradient")
 		UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 		UIGradient.Parent = DropDown
 		UIGradient.Name = HttpService:GenerateGUID(false)
@@ -1764,7 +1871,7 @@ function library:CreateTab(name, list, size, pos)
 		local DropButtons = {}
 		local box = DropDownOutlinedTextBox
 		local bar = Bar
-		local round = Instance.new("Frame",bar)
+		local round = library:CreateInstance("Frame",bar)
 		local TpBarR = TopBarR
 		local TpBarL = TopBarL
 		
@@ -2012,7 +2119,7 @@ function library:CreateTab(name, list, size, pos)
 		
 		
 		local function ListButton(name, callback)
-			local TextButton = Instance.new("TextButton")
+			local TextButton = library:CreateInstance("TextButton")
 			
 			TextButton.Name = HttpService:GenerateGUID(false)
 			TextButton.Parent = Holder
@@ -2028,7 +2135,7 @@ function library:CreateTab(name, list, size, pos)
 			TextButton.TextXAlignment = Enum.TextXAlignment.Left
 			TextButton.BorderSizePixel = 0
 			
-			local buttonText = Instance.new("TextLabel", TextButton)
+			local buttonText = library:CreateInstance("TextLabel", TextButton)
 			buttonText.Name = HttpService:GenerateGUID(false)
 			buttonText.BackgroundTransparency = 1
 			buttonText.Size = UDim2.new(1,0,1,0)
@@ -2041,7 +2148,7 @@ function library:CreateTab(name, list, size, pos)
 			buttonText.TextXAlignment = Enum.TextXAlignment.Left
 			buttonText.Font = options.font
 			
-			local UIGradient = Instance.new("UIGradient")
+			local UIGradient = library:CreateInstance("UIGradient")
 			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, ColorGradient1), ColorSequenceKeypoint.new(1, ColorGradient2)}
 			UIGradient.Parent = TextButton
 			UIGradient.Name = HttpService:GenerateGUID(false)
@@ -2074,7 +2181,7 @@ function library:CreateTab(name, list, size, pos)
 	function elements:NewHeader(text) 
 		text = text or "New Label"
 		local act = {}
-		local button = Instance.new("TextLabel", bodyelements)
+		local button = library:CreateInstance("TextLabel", bodyelements)
 		button.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		button.AnchorPoint = Vector2.new(0.5,0)
 		button.Position = UDim2.new(0.5, 0, (pixelspacing / 990) * #PhaseOneInstances + 0.0155, 0)
@@ -2109,17 +2216,17 @@ function library:CreateTab(name, list, size, pos)
 		local DisabledOutlineColor = Color3.fromRGB(60, 60, 60)
 
 		
-		local OutlinedTextBox = Instance.new("TextBox")
-		local Bar = Instance.new("Frame")
-		local ErrorText = Instance.new("TextLabel")
-		local UIPadding = Instance.new("UIPadding")
-		local TopBarL = Instance.new("Frame")
-		local TopBarR = Instance.new("Frame")
-		local RBar = Instance.new("Frame")
-		local LBar = Instance.new("Frame")
-		local TextHit = Instance.new("TextLabel")
-		local back = Instance.new("TextLabel")
-		local TextSize = Instance.new("TextLabel")
+		local OutlinedTextBox = library:CreateInstance("TextBox")
+		local Bar = library:CreateInstance("Frame")
+		local ErrorText = library:CreateInstance("TextLabel")
+		local UIPadding = library:CreateInstance("UIPadding")
+		local TopBarL = library:CreateInstance("Frame")
+		local TopBarR = library:CreateInstance("Frame")
+		local RBar = library:CreateInstance("Frame")
+		local LBar = library:CreateInstance("Frame")
+		local TextHit = library:CreateInstance("TextLabel")
+		local back = library:CreateInstance("TextLabel")
+		local TextSize = library:CreateInstance("TextLabel")
 		
 		
 		OutlinedTextBox.Name = HttpService:GenerateGUID(false)
@@ -2247,7 +2354,7 @@ function library:CreateTab(name, list, size, pos)
 		local Color = ColorGradient1
 		local box = OutlinedTextBox
 		local bar = Bar
-		local round = Instance.new("Frame",bar)
+		local round = library:CreateInstance("Frame",bar)
 		local TpBarR = TopBarR
 		local TpBarL = TopBarL
 		
@@ -2396,7 +2503,7 @@ function library:CreateTab(name, list, size, pos)
 		maxvalue = maxvalue or 100
 		callback = callback or function() end
 
-		local box = Instance.new("TextLabel", bodyelements)
+		local box = library:CreateInstance("TextLabel", bodyelements)
 		box.Size = UDim2.new(0, 215/1.15, 0, 32.5/1.15)
 		box.AnchorPoint = Vector2.new(0.5,0)
 		box.Position = UDim2.new(0.5, 0, (pixelspacing / 990) * #PhaseOneInstances + 0.0155, 0)
@@ -2412,7 +2519,7 @@ function library:CreateTab(name, list, size, pos)
         box.ZIndex = bodyelements.ZIndex
 		box.Name = HttpService:GenerateGUID(false)
 		
-		local UpperSlideValue = Instance.new("TextLabel")
+		local UpperSlideValue = library:CreateInstance("TextLabel")
 		UpperSlideValue.Name = HttpService:GenerateGUID(false)
 		UpperSlideValue.Parent = box
 		UpperSlideValue.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2428,7 +2535,7 @@ function library:CreateTab(name, list, size, pos)
 		UpperSlideValue.TextXAlignment = Enum.TextXAlignment.Right
 		UpperSlideValue.TextYAlignment = Enum.TextYAlignment.Top
 		
-		local UpperSlideText = Instance.new("TextLabel")
+		local UpperSlideText = library:CreateInstance("TextLabel")
 		UpperSlideText.Name = HttpService:GenerateGUID(false)
 		UpperSlideText.Parent = box
 		UpperSlideText.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2445,14 +2552,14 @@ function library:CreateTab(name, list, size, pos)
 		UpperSlideText.TextYAlignment = Enum.TextYAlignment.Top
 		
 
-		local Slider = Instance.new("Frame")
-		local Point = Instance.new("ImageLabel")
-		local MouseOn = Instance.new("ImageLabel")
-		local MouseDown = Instance.new("ImageLabel")
-		local ValIcon = Instance.new("ImageLabel")
-		local ValText = Instance.new("TextLabel")
-		local Back = Instance.new("Frame")
-		local MouseButton = Instance.new("TextButton")
+		local Slider = library:CreateInstance("Frame")
+		local Point = library:CreateInstance("ImageLabel")
+		local MouseOn = library:CreateInstance("ImageLabel")
+		local MouseDown = library:CreateInstance("ImageLabel")
+		local ValIcon = library:CreateInstance("ImageLabel")
+		local ValText = library:CreateInstance("TextLabel")
+		local Back = library:CreateInstance("Frame")
+		local MouseButton = library:CreateInstance("TextButton")
 		
 		Slider.Name = HttpService:GenerateGUID(false)
 		Slider.Parent = box
@@ -2629,5 +2736,5 @@ function library:CreateTab(name, list, size, pos)
 		return slideractions
 	end
 	return elements
-end                      
+end	                           
 return library
