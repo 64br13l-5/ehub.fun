@@ -16,6 +16,10 @@ for I,V in pairs(getgc(true)) do
         if (rawget(V, "PlaySoundId")) then
             Framework.Sound = V
         end
+        if (rawget(V, "new") and rawget(V, "reset") and not Framework.Particle) then
+            Framework.Particle = V;
+            setreadonly(Framework.Particle, false);
+        end
         if (rawget(V, "getupdater")) then
             Framework.Replication = V
         end
