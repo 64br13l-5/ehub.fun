@@ -1,1 +1,1 @@
-{"data":[{"Version":"E6"}]}
+{"data":[{"Version":"E7"}]}
