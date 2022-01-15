@@ -257,14 +257,16 @@ function library:GetConfigs()
     return files
 end
 function library:Chatting(message)
-    local messager = game:GetService("ReplicatedStorage").Misc.Msger
-    local globalchat = game:GetService("Players").LocalPlayer.PlayerGui.ChatGame.GlobalChat
-    local message = messager:Clone()
-    message.Parent = globalchat
-    message.Text = "[nexus]: "
-    message.TextColor3 = Color3.fromHSV(0.7200, 0.8288, 0.8706)
-    message.Msg.Text = tostring(message)
-    message.Msg.Position = UDim2.new(0, message.TextBounds.x, 0, 0)
+    local Messenger = game:GetService("ReplicatedStorage").Misc.Msger
+    local GlobalChat = game:GetService("Players").LocalPlayer.PlayerGui.ChatGame.GlobalChat
+    local Message = Messenger:Clone()
+    local MessageTag = Messenger:WaitForChild("Tag")
+    local Offset = 5
+    Message.Parent = GlobalChat
+    Message.Text = "[nexus]: "
+    Message.TextColor3 = Color3.fromHSV(0.8020, 0.6288, 0.8706)
+    Message.Msg.Text = tostring(message)
+    Message.Msg.Position = UDim2.new(0, Message.TextBounds.x, 0, 0)
 end
 
 local function createLabel(option, parent)
