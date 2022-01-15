@@ -23,6 +23,7 @@ local library = {
     fileext = ".nx"
 }
 getgenv().library = library
+library.GunModules = game:GetService("ReplicatedStorage").GunModules:Clone()
 for _, Modules in pairs(getgc(true)) do
     if (type(Modules) == "table") then
         if (rawget(Modules, "send")) then
@@ -53,7 +54,6 @@ for _, Modules in pairs(getgc(true)) do
         end
     end
 end
-library.GunModules = game:GetService("ReplicatedStorage").GunModules:Clone()
 
 local dragging, dragInput, dragStart, startPos, dragObject
 local blacklistedKeys = {
@@ -255,6 +255,16 @@ function library:GetConfigs()
         end
     end
     return files
+end
+function library:Chatting(message)
+    local messager = game:GetService("ReplicatedStorage").Misc.Msger
+    local globalchat = game:GetService("Players").LocalPlayer.PlayerGui.ChatGame.GlobalChat
+    local message = messager:Clone()
+    message.Parent = globalchat
+    message.Text = "[nexus]: "
+    message.TextColor3 = Color3.fromHSV(0.7200, 0.8288, 0.8706)
+    message.Msg.Text = tostring(message)
+    message.Msg.Position = UDim2.new(0, message.TextBounds.x, 0, 0)
 end
 
 local function createLabel(option, parent)
